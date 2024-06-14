@@ -4,6 +4,7 @@ import './todo-list-item.css'
 
 function TodoListItem({ label, editItem, deleteItem, onToggleDone, done, timerRunning, startTimer, pauseTimer, formatTime }) {
   const [editedText, setEditedText] = useState(label)
+  const [originalText, setOriginalText] = useState(label)
   const [isEditing, setIsEditing] = useState(false)
   const [createdAt] = useState(new Date())
   const [timeAgo, setTimeAgo] = useState(formatDistanceToNow(createdAt))
@@ -25,7 +26,8 @@ function TodoListItem({ label, editItem, deleteItem, onToggleDone, done, timerRu
   }, [createdAt])
 
   const handleEdit = () => {
-    setIsEditing(prevIsEditing => !prevIsEditing)
+    setOriginalText(editedText)
+    setIsEditing(true)
   }
 
   const handleInputChange = (e) => {
@@ -39,6 +41,7 @@ function TodoListItem({ label, editItem, deleteItem, onToggleDone, done, timerRu
 
   const handleBlur = () => {
     if (isEditing) {
+      setEditedText(originalText)
       setIsEditing(false)
     }
   }
@@ -57,6 +60,7 @@ function TodoListItem({ label, editItem, deleteItem, onToggleDone, done, timerRu
             if (e.key === 'Enter') {
               handleSave()
             } else if (e.key === 'Escape') {
+              setEditedText(originalText)
               setIsEditing(false)
             }
           }}
@@ -65,7 +69,7 @@ function TodoListItem({ label, editItem, deleteItem, onToggleDone, done, timerRu
         <>
           <input className="toggle" type="checkbox" onChange={onToggleDone} onClick={pauseTimer}/>
           <label htmlFor="inputElement" className={done ? 'label done' : 'label'}>
-            <span>{label}</span>
+            <span>{editedText}</span>
             <span className="created">
               <button type="button" className="icon icon-play" onClick={startTimer} disabled={timerRunning} />
               <button type="button" className="icon icon-pause" onClick={pauseTimer} disabled={!timerRunning} />

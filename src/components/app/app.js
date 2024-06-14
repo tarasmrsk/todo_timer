@@ -15,8 +15,8 @@ export default class App extends Component {
     todoData: []
   }
 
-  addItem = (text) => {
-    const newItem = this.createItem(text)
+  addItem = (task, minutes, seconds) => {
+    const newItem = this.createItem(task, minutes, seconds)
     this.setState(({ todoData }) => {
       const newArray = [newItem, ...todoData]
       return {
@@ -84,15 +84,17 @@ export default class App extends Component {
     })
   }
 
-  createItem(label) {
+  createItem(label, minutes, seconds) {
     return {
       id: this.maxId++,
       label,
       done: false,
       dateCreated: new Date(),
-      timer: 0, // Добавляем поле timer для хранения значения таймера
+      minutes,
+      seconds,
     }
   }
+
 
   render() {
     const { todoData, filter } = this.state

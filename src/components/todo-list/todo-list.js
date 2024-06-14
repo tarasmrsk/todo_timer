@@ -14,9 +14,16 @@ function TodoList({ todos, onToggleDone, toggleEditMode, editItem, deleteItem })
           if (prevTimers[key].isRunning) {
             const timer = prevTimers[key]
             if (timer && timer.time !== undefined) {
-              updatedTimers[key] = {
-                time: timer.time + 1,
-                isRunning: true
+              if (timer.time > 0) {
+                updatedTimers[key] = {
+                  time: timer.time - 1,
+                  isRunning: true
+                }
+              } else {
+                updatedTimers[key] = {
+                  time: 0,
+                  isRunning: false
+                }
               }
             } else {
               updatedTimers[key] = prevTimers[key]
@@ -33,14 +40,23 @@ function TodoList({ todos, onToggleDone, toggleEditMode, editItem, deleteItem })
   }, [])
 
   const handleStart = (id) => {
-    setTimers(prevTimers => {
-      const prevTimer = prevTimers[id]
-      const newTime = prevTimer ? prevTimer.time : 0
-      return {
-        ...prevTimers,
-        [id]: { time: newTime, isRunning: true }
-      }
-    })
+    const currentTodo = todos.find(todo => todo.id === id)
+
+    const minutes = parseInt(currentTodo.minutes, 10) || 0
+    const seconds = parseInt(currentTodo.seconds, 10) || 0
+
+    const timeFromTodo = currentTodo ? minutes * 60 + seconds : 60
+    const timer = timers[id]
+    let startTime = timeFromTodo
+
+    if (timer && !timer.isRunning && timer.time > 0) {
+      startTime = timer.time
+    }
+  
+    setTimers(prevTimers => ({
+      ...prevTimers,
+      [id]: { time: startTime, isRunning: true }
+    }))
   }
 
   const handleStop = (id) => {
@@ -51,14 +67,21 @@ function TodoList({ todos, onToggleDone, toggleEditMode, editItem, deleteItem })
   }
 
   const formatTime = (id) => {
+    const currentTodo = todos.find(todo => todo.id === id)
+    const min = parseInt(currentTodo.minutes, 10) || 0
+    const sec = parseInt(currentTodo.seconds, 10) || 0
+
     const timer = timers[id]
     if (timer && timer.time !== undefined) {
       const { time } = timer
+      if (time <= 0) {
+        return '00:00'
+      }
       const minutes = Math.floor(time / 60)
       const seconds = time % 60
       return `${(minutes < 10 ? '0' : '') + minutes}:${seconds < 10 ? '0' : ''}${seconds}`
     }
-    return '00:00'
+    return `${(min < 10 ? '0' : '') + min}:${sec < 10 ? '0' : ''}${sec}`
   }
 
   const elements = todos.map((item) => {

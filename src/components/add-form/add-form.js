@@ -1,36 +1,71 @@
-import { Component } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import './add-form.css'
 
-export default class AddForm extends Component {
-  state = {
-    label: '',
-  }
+function AddForm({ addItem }) {
+  const [label, setLabel] = useState('')
+  const [minutes, setMinutes] = useState('')
+  const [seconds, setSeconds] = useState('')
+  const taskInputRef = useRef(null)
 
-  handleChange = (e) => {
-    this.setState({
-      label: e.target.value,
-    })
-  }
+  useEffect(() => {
+    taskInputRef.current.focus()
+  }, [])
 
-  handleKeyPress = (e) => {
-    const { label } = this.state
-    if (e.key === 'Enter' && label.trim() !== '') {
-      const { addItem } = this.props
-      addItem(label)
-      this.setState({ label: '' })
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    if (name === 'task') {
+      setLabel(value)
     }
   }
 
-  render() {
-    const { label } = this.state
-    return (
-      <input
-        className="new-todo"
-        placeholder="What needs to be done?"
-        value={label}
-        onChange={this.handleChange}
-        onKeyPress={this.handleKeyPress}
-      />
-    )
+  const handleTimeChange = (e) => {
+    const { name, value } = e.target
+    if (name === 'minutes' && /^\d*$/.test(value)) {
+      setMinutes(value)
+    } else if (name === 'seconds' && /^\d*$/.test(value) && value <= 59 && value.length <= 2) {
+      setSeconds(value)
+    }
   }
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && label.trim() !== '' && minutes !== '' && seconds !== '') {
+      addItem(label, minutes, seconds)
+      setLabel('')
+      setMinutes('')
+      setSeconds('')
+      // console.log({label, minutes, seconds})
+    }
+  }
+
+  return (
+    <form className="new-todo-form">
+      <input
+        ref={taskInputRef}
+        className="new-todo"
+        name="task"
+        placeholder="Task"
+        value={label}
+        onChange={handleChange}
+        onKeyPress={handleKeyPress}
+      />
+      <input
+        className="new-todo-form__timer"
+        name="minutes"
+        placeholder="Min"
+        value={minutes}
+        onChange={handleTimeChange}
+        onKeyPress={handleKeyPress}
+      />
+      <input
+        className="new-todo-form__timer"
+        name="seconds"
+        placeholder="Sec"
+        value={seconds}
+        onChange={handleTimeChange}
+        onKeyPress={handleKeyPress}
+      />
+    </form>
+  )
 }
+
+export default AddForm
