@@ -33,7 +33,6 @@ function AddForm({ addItem }) {
       setLabel('')
       setMinutes('')
       setSeconds('')
-      // console.log({label, minutes, seconds})
     }
   }
 
